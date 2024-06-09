@@ -6,9 +6,9 @@ function charge(baseUrl: string, path: string, appId: string) {
     return {
         /**
          * @method Returns one or more charges
-         * @param {Object} singleChargeOptions - The options for returning one charge.
+         * @param {Object} options - The options for returning **one charge**.
          *      - id: The id of the charge to be called
-         * @param {Object} multiChargeOptions - The options for returning an interval of charges.
+         * @param {Object} options - The options for returning **an interval of charges**.
          *      - start?: Date time of the start of the interval
          *      - end?: Date time of the end of the interval
          *      - status?: Filter for the status of the returned charges
