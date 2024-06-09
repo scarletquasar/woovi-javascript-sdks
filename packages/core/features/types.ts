@@ -60,5 +60,6 @@ export {
     WooviAccount, 
     WooviTransaction, 
     WooviWithdraw, 
-    WooviChargeDeletion
+    WooviChargeDeletion,
+    WooviCharge
 }

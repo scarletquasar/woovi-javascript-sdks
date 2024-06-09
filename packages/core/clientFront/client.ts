@@ -1,21 +1,22 @@
 import { account } from "../features/account";
+import { charge } from "../features/charge";
 import { WooviSdkClientOptions, WooviSdkClientError } from "./types";
 
 class WooviSdkClient {
     private baseUrl = "https://api.openpix.com.br";
-    private accountUrl = "/api/v1/account/";
-    private cashbackFidelityUrl = "/api/v1/cashback-fidelity/";
-    private chargeUrl = "/api/v1/charge/";
-    private customerUrl = "/api/v1/customer/";
-    private partnerUrl = "/api/v1/partner/";
-    private paymentUrl = "/api/v1/payment/";
-    private pixQrCodeUrl = "/api/v1/qrcode-static/";
-    private refundUrl = "/api/v1/refund/";
-    private subscriptionUrl = "/api/v1/subscriptions/";
-    private transactionsUrl = "/api/v1/transaction/";
+    private accountUrl = "/api/v1/account";
+    private cashbackFidelityUrl = "/api/v1/cashback-fidelity";
+    private chargeUrl = "/api/v1/charge";
+    private customerUrl = "/api/v1/customer";
+    private partnerUrl = "/api/v1/partner";
+    private paymentUrl = "/api/v1/payment";
+    private pixQrCodeUrl = "/api/v1/qrcode-static";
+    private refundUrl = "/api/v1/refund";
+    private subscriptionUrl = "/api/v1/subscriptions";
+    private transactionsUrl = "/api/v1/transaction";
     private transferUrl = "/api/v1/transfer";
-    private webhookUrl = "/api/v1/webhook/";
-    private subaccountUrl = "/api/v1/subaccount/";
+    private webhookUrl = "/api/v1/webhook";
+    private subaccountUrl = "/api/v1/subaccount";
 
     private appId: string;
 
@@ -27,12 +28,23 @@ class WooviSdkClient {
             this.accountUrl, 
             this.appId
         );
+
+        this.charge = charge(
+            this.baseUrl, 
+            this.chargeUrl, 
+            this.appId
+        );
     }
 
     /**
-     * Options for accessing Account features
+     * Options for accessing WooviAccount features
      */
     public account: ReturnType<typeof account>;
+
+    /**
+     * Options for accessing WooviCharge features
+     */
+    public charge: ReturnType<typeof charge>;
 }
 
 function createClient(options: WooviSdkClientOptions) {

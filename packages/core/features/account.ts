@@ -11,29 +11,31 @@ function account(baseUrl: string, path: string, appId: string) {
          *      the call will return a list of accounts.
          * @example 
          * // Get one account
-         * const account: Account = await client
+         * const result = await client
          *  .accounts
          *  .get({ 
          *      accountId: '97b8e10a-b3fb-41ae-b089-571ce174cceb' 
          *  });
          * 
+         * const account = result[0];
+         * 
          * @example 
          * // Get multiple accounts
-         * const accounts: Account[] = await client
+         * const accounts = await client
          *  .accounts
          *  .get();
          * 
          * @example
          * // Get multiple accounts
-         * const accounts: Account[] = await client
+         * const accounts = await client
          *  .accounts
          *  .get({});
          */
-        get: async (options?: { accountId?: string }) => {
+        get: async (options?: { accountId?: string }): Promise<Array<WooviAccount> | WooviSdkClientError> => {
             options ??= {};
             options.accountId ??= '';
 
-            const response = await fetch(`${baseUrl}${path}${options.accountId}`, {
+            const response = await fetch(`${baseUrl}${path}/${options.accountId}`, {
                 headers: getDefaultHeaders(appId)
             });
 
@@ -41,10 +43,10 @@ function account(baseUrl: string, path: string, appId: string) {
                 const result = await response.json();
 
                 if (!options.accountId) {
-                    return result as Array<WooviAccount>
+                    return result
                 }
 
-                return result as WooviAccount;
+                return [result];
             }
 
             if (response.status === 400) {
@@ -80,7 +82,7 @@ function account(baseUrl: string, path: string, appId: string) {
          *  });
          */
         withdraw: async (options: { accountId: string, valueInCents: number }) => {
-            const response = await fetch(`${baseUrl}${path}${options.accountId}`, {
+            const response = await fetch(`${baseUrl}${path}/${options.accountId}`, {
                 method: 'POST',
                 headers: getDefaultHeaders(appId),
                 body: JSON.stringify({
