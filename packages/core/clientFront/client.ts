@@ -29,6 +29,9 @@ class WooviSdkClient {
         );
     }
 
+    /**
+     * Options for accessing Account features
+     */
     public account: ReturnType<typeof account>;
 }
 

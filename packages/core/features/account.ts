@@ -1,9 +1,34 @@
 import { getDefaultHeaders } from "../apiUtils/getDefaultHeaders"
 import { WooviSdkClientError } from "../clientFront/types";
-import { Account, Withdraw } from "./types";
+import { WooviAccount, WooviWithdraw } from "./types";
 
 function account(baseUrl: string, path: string, appId: string) {
     return {
+        /**
+         * @method Returns one or more accounts
+         * @param {Object} options - The options for the call.
+         *      - accountId?: The id of the account to be called, if undefined, 
+         *      the call will return a list of accounts.
+         * @example 
+         * // Get one account
+         * const account: Account = await client
+         *  .accounts
+         *  .get({ 
+         *      accountId: '97b8e10a-b3fb-41ae-b089-571ce174cceb' 
+         *  });
+         * 
+         * @example 
+         * // Get multiple accounts
+         * const accounts: Account[] = await client
+         *  .accounts
+         *  .get();
+         * 
+         * @example
+         * // Get multiple accounts
+         * const accounts: Account[] = await client
+         *  .accounts
+         *  .get({});
+         */
         get: async (options?: { accountId?: string }) => {
             options ??= {};
             options.accountId ??= '';
@@ -16,10 +41,10 @@ function account(baseUrl: string, path: string, appId: string) {
                 const result = await response.json();
 
                 if (!options.accountId) {
-                    return result as Array<Account>
+                    return result as Array<WooviAccount>
                 }
 
-                return result as Account;
+                return result as WooviAccount;
             }
 
             if (response.status === 400) {
@@ -39,6 +64,21 @@ function account(baseUrl: string, path: string, appId: string) {
                 action: 'request'
             } as WooviSdkClientError
         },
+        /**
+         * @method Withdraw from one account
+         * @param {Object} options - The options for the call.
+         *      - accountId?: The id of the account to be called, if undefined, 
+         *      the call will return a list of accounts.
+         *      - valueInCents: The value in cents to withdraw from the account.
+         * @example 
+         * // Withdraw from account
+         * const account: Withdraw = await client
+         *  .accounts
+         *  .withdraw({ 
+         *      accountId: '97b8e10a-b3fb-41ae-b089-571ce174cceb',
+         *      valueInCents: 20000
+         *  });
+         */
         withdraw: async (options: { accountId: string, valueInCents: number }) => {
             const response = await fetch(`${baseUrl}${path}${options.accountId}`, {
                 method: 'POST',
@@ -50,7 +90,7 @@ function account(baseUrl: string, path: string, appId: string) {
 
             if (response.status === 200) {
                 const result = await response.json();
-                return result as Withdraw;
+                return result as WooviWithdraw;
             }
 
             if (response.status === 400) {
