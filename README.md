@@ -9,6 +9,4 @@ Monorepo contendo SDKs JavaScript genéricos para utilização das funcionalidad
 
 | SDK | Target |
 | --- | ------ |
-| packages/core | Cross-browser e ECMAScript runtimes (ECMA2023)|
-| packages/react | React.js 18+ |
-| packages/react-native | React Native 0.74+ |
+| packages/core | Cross-browser e ECMAScript|
