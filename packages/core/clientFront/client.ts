@@ -44,4 +44,4 @@ function createClient(options: WooviSdkClientOptions) {
     return new WooviSdkClient({ appId: options.appId });
 }
 
-export { createClient }
+export { createClient, type WooviSdkClient }
