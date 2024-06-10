@@ -1,4 +1,4 @@
-<div align="center">
+<div align="left">
 <img width="80" src="./logo.png">
 
 # Woovi JS SDKs
