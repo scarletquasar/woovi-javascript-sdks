@@ -101,7 +101,7 @@ function charge(baseUrl: string, path: string, appId: string) {
 
             if (response.status === 200) {
                 const result = await response.json();
-                return result;
+                return result.data;
             }
 
             if (response.status === 400) {
@@ -161,7 +161,15 @@ function charge(baseUrl: string, path: string, appId: string) {
             } as WooviSdkClientError
         },
         create: async (options:  WooviCreateChargeOptions) => {
-            
+            const response = await fetch(`${baseUrl}${path}`, {
+                body: JSON.stringify(options),
+                headers: getDefaultHeaders(appId)
+            });
+
+            if (response.status === 200) {
+                const result = await response.json();
+                return result.data;
+            }
         }
     }
 }
