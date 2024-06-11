@@ -1,6 +1,44 @@
 import { getDefaultHeaders } from "../apiUtils/getDefaultHeaders";
 import { WooviSdkClientError } from "../clientFront/types";
-import { WooviCharge, WooviChargeDeletion } from "./types";
+import { WooviCharge, WooviChargeDeletion, WooviCustomer } from "./types";
+
+type WooviCreateChargeOptions = {
+    correlationId: string,
+    value: number,
+    type?: 'DYNAMIC' | 'OVERDUE',
+    comment?: string,
+    expiresIn?: number,
+    expiresDate?: string,
+    customer: WooviCustomer,
+    daysForDueDate?: number,
+    daysAfterDueDate?: number,
+    interests?: {
+        values?: number
+    },
+    fines?: {
+        values?: number
+    },
+    discountSettings?: {
+        modality?: string,
+        discountFixedDate?: Array<{
+            daysActive?: number,
+            value?: number
+        }>
+    },
+    additionalInfo?: Array<{
+        key?: string,
+        value?: string
+    }>,
+    enableCashbackPercentage?: boolean,
+    enableCashbackExclusivePercentage?: boolean,
+    subaccount?: string,
+    splits?: Array<{
+        value: string,
+        pixKey: string,
+        splitType: 'SPLIT_INTERNAL_TRANSFER' | 'SPLIT_SUB_ACCOUNT' | 'SPLIT_PARTNER' 
+    }>
+
+}
 
 function charge(baseUrl: string, path: string, appId: string) {
     return {
@@ -122,7 +160,7 @@ function charge(baseUrl: string, path: string, appId: string) {
                 action: 'request'
             } as WooviSdkClientError
         },
-        create: async (options: {}) => {
+        create: async (options:  WooviCreateChargeOptions) => {
             
         }
     }

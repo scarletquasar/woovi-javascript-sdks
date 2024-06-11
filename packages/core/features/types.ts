@@ -30,9 +30,11 @@ type WooviTaxId = {
 
 type WooviCustomer = {
     name: string,
-    email: string,
-    phone: string,
+    email?: string,
+    phone?: string,
     taxId: WooviTaxId,
+    correlationId?: string,
+    address?: string
 }
 
 type WooviCharge = {
@@ -61,5 +63,6 @@ export {
     WooviTransaction, 
     WooviWithdraw, 
     WooviChargeDeletion,
-    WooviCharge
+    WooviCharge,
+    WooviCustomer
 }
