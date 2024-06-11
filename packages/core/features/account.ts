@@ -43,10 +43,10 @@ function account(baseUrl: string, path: string, appId: string) {
                 const result = await response.json();
 
                 if (!options.accountId) {
-                    return result
+                    return result.accounts;
                 }
 
-                return [result];
+                return [result.account];
             }
 
             if (response.status === 400) {
@@ -92,7 +92,7 @@ function account(baseUrl: string, path: string, appId: string) {
 
             if (response.status === 200) {
                 const result = await response.json();
-                return result as WooviWithdraw;
+                return result.withdraw as WooviWithdraw;
             }
 
             if (response.status === 400) {

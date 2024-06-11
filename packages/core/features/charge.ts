@@ -80,6 +80,8 @@ function charge(baseUrl: string, path: string, appId: string) {
             status?: 'ACTIVE' | 'COMPLETED' | 'EXPIRED',
             customer?: string
         }): Promise<Array<WooviCharge> | WooviSdkClientError> => {
+            // TODO: ADD PAGINATION SUPPORT AND FIX THE RESPONSE
+            // TYPING TO ATTEND THE API
             const response = (options as { id: string }).id 
                 ? await fetch(`${baseUrl}${path}${(options as { id: string }).id}`, {
                     headers: getDefaultHeaders(appId)
