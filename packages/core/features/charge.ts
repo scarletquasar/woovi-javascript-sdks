@@ -10,7 +10,7 @@ type WooviCreateChargeOptions = {
     comment?: string,
     expiresIn?: number,
     expiresDate?: string,
-    customer: WooviCustomer,
+    customer?: WooviCustomer,
     daysForDueDate?: number,
     daysAfterDueDate?: number,
     interests?: {
@@ -20,7 +20,7 @@ type WooviCreateChargeOptions = {
         values?: number
     },
     discountSettings?: {
-        modality?: string,
+        modality?: "FIXED_VALUE_UNTIL_SPECIFIED_DATE" | "PERCENTAGE_UNTIL_SPECIFIED_DATE",
         discountFixedDate?: Array<{
             daysActive?: number,
             value?: number
@@ -41,6 +41,17 @@ type WooviCreateChargeOptions = {
 };
 
 type WooviChargePagination = WooviPagination & { charges: Array<WooviCharge> };
+
+type WooviCreateChargeReturn = {
+    correlationID: string,
+    value: number,
+    comment: string,
+    customer: WooviCustomer,
+    additionalInfo: Array<{
+        key?: string,
+        value?: string
+    }> 
+};
 
 function charge(baseUrl: string, path: string, appId: string) {
     return {
@@ -147,7 +158,7 @@ function charge(baseUrl: string, path: string, appId: string) {
         },
         /**
          * @method Deletes one charge
-         * @param {Object} options - The options for deleting one charge.
+         * @param {Object} options The options for deleting one charge.
          *      - chargeOrCorrelationId: The charge id or correlation id of the charge to be deleted
          * @example 
          * // Delete one charge
@@ -184,8 +195,49 @@ function charge(baseUrl: string, path: string, appId: string) {
                 action: 'request'
             } as WooviSdkClientError
         },
-        create: async (options: WooviCreateChargeOptions) => {
-            const returnExisting = options.returnExisting ?? false;
+        /**
+         * @method Creates one charge
+         * @param {Object} options The options for creating the charge
+         *      - returnExisting?: Make the endpoint **idempotent**, will return an existent charge if already has a one with the correlationID. Default is `true`
+         *      - correlationId: The correlation ID for the charge, an unique ID like UUID is recommended
+         *      - value: The value of the charge in cents
+         *      - type: Defines the type of the charge. Default is `'DYNAMIC'`
+         *      - comment: A comment for the charge
+         *      - expiresIn: The amount of time to pass before expiring in milisseconds
+         *      - expiresDate: The string representation of the expiration date
+         *      - customer: Customer field is not required. However, if you decide to send it, you must send at least one of the following combinations, name + taxID or name + email or name + phone
+         *      - daysForDueDate: Time in days until the charge hits the deadline so fines and interests start applying. This property is only considered for charges of type OVERDUE
+         *      - daysAfterDueDate: Time in days that a charge is still payable after the deadline. This property is only considered for charges of type OVERDUE
+         *      - interests: Interests configuration. This property is only considered for charges of type OVERDUE
+         *      - fines: Fines configuration. This property is only considered for charges of type OVERDUE
+         *      - discountSettings: Discount settings for the charge. This property is only considered for charges of type OVERDUE
+         *      - additionalInfo: Additional info of the charge
+         *      - enableCashbackPercentage: `true` to enable cashback and `false` to disable
+         *      - enableCashbackExclusivePercentage: `true` to enable fidelity cashback and `false` to disable
+         *      - subaccount: Pix key of the subaccount to receive the charge
+         *      - splits: This is the array that will configure how will be splitted the value of the charge
+         * @example 
+         * const result = await client
+         *  .charge
+         *  .get({ 
+         *      id: '97b8e10a-b3fb-41ae-b089-571ce174cceb' 
+         *  });
+         * 
+         * const charge = result[0];
+         * 
+         * @example 
+         * // Get multiple charges
+         * const charges = await client
+         *  .accounts
+         *  .get({
+         *      start: '2020-06-09T18:44:06.324Z',
+         *      end: '2024-06-09T18:44:06.324Z',
+         *      status: 'ACTIVE',
+         *      customer: 'a841224a-b5c4-4a00-9688-7263a848f810'
+         *  });
+         */
+        create: async (options: WooviCreateChargeOptions): Promise<WooviCreateChargeReturn | WooviSdkClientError> => {
+            const returnExisting = options.returnExisting ?? true;
             delete options.returnExisting;
 
             const response = await fetch(`${baseUrl}${path}?returnExisting=${returnExisting}`, {
@@ -197,6 +249,23 @@ function charge(baseUrl: string, path: string, appId: string) {
                 const result = await response.json();
                 return result.data;
             }
+
+            if (response.status === 400) {
+                const result = await response.json();
+                return {
+                    problem: result.error,
+                    statusCode: 400,
+                    wasOnline: true,
+                    action: 'request'
+                } as WooviSdkClientError
+            }
+
+            return {
+                problem: await response.text(),
+                statusCode: response.status,
+                wasOnline: true,
+                action: 'request'
+            } as WooviSdkClientError
         }
     }
 }

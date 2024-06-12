@@ -29,10 +29,10 @@ type WooviTaxId = {
 }
 
 type WooviCustomer = {
-    name: string,
+    name?: string,
     email?: string,
     phone?: string,
-    taxId: WooviTaxId,
+    taxId?: WooviTaxId,
     correlationId?: string,
     address?: string
 }
