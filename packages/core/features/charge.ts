@@ -3,6 +3,7 @@ import { WooviSdkClientError } from "../clientFront/types";
 import { WooviCharge, WooviChargeDeletion, WooviCustomer, WooviPagination } from "./types";
 
 type WooviCreateChargeOptions = {
+    returnExisting?: boolean,
     correlationId: string,
     value: number,
     type?: 'DYNAMIC' | 'OVERDUE',
@@ -183,8 +184,11 @@ function charge(baseUrl: string, path: string, appId: string) {
                 action: 'request'
             } as WooviSdkClientError
         },
-        create: async (options:  WooviCreateChargeOptions) => {
-            const response = await fetch(`${baseUrl}${path}`, {
+        create: async (options: WooviCreateChargeOptions) => {
+            const returnExisting = options.returnExisting ?? false;
+            delete options.returnExisting;
+
+            const response = await fetch(`${baseUrl}${path}?returnExisting=${returnExisting}`, {
                 body: JSON.stringify(options),
                 headers: getDefaultHeaders(appId)
             });
