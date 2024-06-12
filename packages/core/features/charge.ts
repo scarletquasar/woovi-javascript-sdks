@@ -96,7 +96,7 @@ function charge(baseUrl: string, path: string, appId: string) {
             limit?: number
         }): Promise<WooviChargePagination | WooviSdkClientError> => {
             const response = (options as { id: string }).id 
-                ? await fetch(`${baseUrl}${path}${(options as { id: string }).id}`, {
+                ? await fetch(`${baseUrl}${path}/${(options as { id: string }).id}`, {
                     headers: getDefaultHeaders(appId)
                 })
                 : await (async () => {
