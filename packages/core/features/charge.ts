@@ -56,6 +56,46 @@ type WooviCreateChargeReturn = {
 function charge(baseUrl: string, path: string, appId: string) {
     return {
         /**
+         * @method Returns a charge's image as an `ArrayBuffer`
+         * @param {Object} options - The options for returning the charge image.
+         *      - chargeId: Id of the target charge
+         *      - size?: Size of the generated QRCode image (default is 1024px)
+         * @example 
+         * // Get a charge's image
+         * const result = await client
+         *  .charge
+         *  .getImage({ 
+         *      id: '97b8e10a-b3fb-41ae-b089-571ce174cceb' 
+         *  });
+         */
+        getImage: async (options: { chargeId: string, size?: number }) => {
+            const response = await fetch(`/openpix/charge/brcode/image/${options.chargeId}.png?size=${options.size ?? 1024}`, {
+                headers: getDefaultHeaders(appId)
+            });
+
+            if (response.status === 200) {
+                const image = await response.arrayBuffer(); 
+                return image;
+            }
+
+            if (response.status === 400) {
+                const result = await response.json();
+                return {
+                    problem: result.error,
+                    statusCode: 400,
+                    wasOnline: true,
+                    action: 'request'
+                } as WooviSdkClientError
+            }
+
+            return {
+                problem: await response.text(),
+                statusCode: response.status,
+                wasOnline: true,
+                action: 'request'
+            } as WooviSdkClientError
+        },
+        /**
          * @method Returns one or more charges
          * @param {Object} options - The options for returning **one charge**.
          *      - id: The id of the charge to be called
@@ -217,23 +257,12 @@ function charge(baseUrl: string, path: string, appId: string) {
          *      - subaccount: Pix key of the subaccount to receive the charge
          *      - splits: This is the array that will configure how will be splitted the value of the charge
          * @example 
+         * // Create charge
          * const result = await client
          *  .charge
-         *  .get({ 
-         *      id: '97b8e10a-b3fb-41ae-b089-571ce174cceb' 
-         *  });
-         * 
-         * const charge = result[0];
-         * 
-         * @example 
-         * // Get multiple charges
-         * const charges = await client
-         *  .accounts
-         *  .get({
-         *      start: '2020-06-09T18:44:06.324Z',
-         *      end: '2024-06-09T18:44:06.324Z',
-         *      status: 'ACTIVE',
-         *      customer: 'a841224a-b5c4-4a00-9688-7263a848f810'
+         *  .create({
+         *      correlationId: randomUUID()
+         *      value: 100000
          *  });
          */
         create: async (options: WooviCreateChargeOptions) => {
