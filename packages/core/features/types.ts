@@ -58,7 +58,18 @@ type WooviCharge = {
     updatedAt: string
 }
 
+type WooviPagination = {
+    pageInfo: {
+        skip: number,
+        limit: number,
+        totalCount: number,
+        hasPreviousPage: boolean,
+        hasNextPage: boolean
+    }
+}
+
 export { 
+    WooviPagination,
     WooviAccount, 
     WooviTransaction, 
     WooviWithdraw, 

@@ -1,6 +1,6 @@
 import { getDefaultHeaders } from "../apiUtils/getDefaultHeaders";
 import { WooviSdkClientError } from "../clientFront/types";
-import { WooviCharge, WooviChargeDeletion, WooviCustomer } from "./types";
+import { WooviCharge, WooviChargeDeletion, WooviCustomer, WooviPagination } from "./types";
 
 type WooviCreateChargeOptions = {
     correlationId: string,
@@ -37,8 +37,9 @@ type WooviCreateChargeOptions = {
         pixKey: string,
         splitType: 'SPLIT_INTERNAL_TRANSFER' | 'SPLIT_SUB_ACCOUNT' | 'SPLIT_PARTNER' 
     }>
+};
 
-}
+type WooviChargePagination = WooviPagination & { charges: Array<WooviCharge> };
 
 function charge(baseUrl: string, path: string, appId: string) {
     return {
@@ -78,20 +79,26 @@ function charge(baseUrl: string, path: string, appId: string) {
             start?: string,
             end?: string,
             status?: 'ACTIVE' | 'COMPLETED' | 'EXPIRED',
-            customer?: string
-        }): Promise<Array<WooviCharge> | WooviSdkClientError> => {
-            // TODO: ADD PAGINATION SUPPORT AND FIX THE RESPONSE
-            // TYPING TO ATTEND THE API
+            customer?: string,
+            skip?: number,
+            limit?: number
+        }): Promise<WooviChargePagination | WooviSdkClientError> => {
             const response = (options as { id: string }).id 
                 ? await fetch(`${baseUrl}${path}${(options as { id: string }).id}`, {
                     headers: getDefaultHeaders(appId)
                 })
-                : await (() => async () => {
-                    const typesafeOptions = options as {
-                        start?: string,
-                        end?: string,
-                        status?: 'ACTIVE' | 'COMPLETED' | 'EXPIRED',
-                        customer?: string
+                : await (async () => {
+                    const typesafeOptions = {
+                        ...options,
+                        skip: (<{ skip: number}>options).skip?.toString(),
+                        limit: (<{ limit: number}>options).limit?.toString()
+                    } as {
+                        skip: string;
+                        limit: string;
+                        start?: string;
+                        end?: string;
+                        status?: "ACTIVE" | "COMPLETED" | "EXPIRED";
+                        customer?: string;
                     };
 
                     const queryParams = new URLSearchParams(typesafeOptions);
@@ -99,7 +106,21 @@ function charge(baseUrl: string, path: string, appId: string) {
                     return await fetch(`${baseUrl}${path}?${queryParams.toString()}`, {
                         headers: getDefaultHeaders(appId)
                     })
-                })()();
+                })();
+
+            if (response.status === 200 && (<{ id: string }>options).id) {
+                const result = await response.json();
+                return {
+                    pageInfo: {
+                        skip: 0,
+                        limit: 1,
+                        totalCount: 1,
+                        hasPreviousPage: false,
+                        hasNextPage: false
+                    },
+                    charges: [result.data]
+                };
+            }
 
             if (response.status === 200) {
                 const result = await response.json();
