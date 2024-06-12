@@ -236,7 +236,7 @@ function charge(baseUrl: string, path: string, appId: string) {
          *      customer: 'a841224a-b5c4-4a00-9688-7263a848f810'
          *  });
          */
-        create: async (options: WooviCreateChargeOptions): Promise<WooviCreateChargeReturn | WooviSdkClientError> => {
+        create: async (options: WooviCreateChargeOptions) => {
             const returnExisting = options.returnExisting ?? true;
             delete options.returnExisting;
 
@@ -247,7 +247,7 @@ function charge(baseUrl: string, path: string, appId: string) {
 
             if (response.status === 200) {
                 const result = await response.json();
-                return result.data;
+                return result.data as WooviCreateChargeReturn;
             }
 
             if (response.status === 400) {
