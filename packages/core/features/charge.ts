@@ -112,7 +112,7 @@ function charge(baseUrl: string, path: string, appId: string) {
          *      id: '97b8e10a-b3fb-41ae-b089-571ce174cceb' 
          *  });
          * 
-         * const charge = result[0];
+         * const charge = result.charges[0];
          * 
          * @example 
          * // Get multiple charges
