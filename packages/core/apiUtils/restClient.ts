@@ -1,3 +1,4 @@
+import { WooviSdkClientError } from "../clientFront/types";
 import { getDefaultHeaders } from "./getDefaultHeaders";
 
 interface QueryParams {
@@ -27,7 +28,7 @@ export default function fetcher(options: {appId: string, baseUrl: string}){
 			: `${url}?${searchParams.toString()}`;
 	}
 
-    const wrapper = (method: "POST" | "PUT" | "GET" | "DELETE" | "PATCH" = "GET") => async <T>(path: string, data: WrapperParams): Promise<FetcherResponse<T>> => {
+    const wrapper = (method: "POST" | "PUT" | "GET" | "DELETE" | "PATCH" = "GET") => async <T>(path: string, data: WrapperParams): Promise<FetcherResponse<T> | WooviSdkClientError> => {
         const headers = getDefaultHeaders(options.appId);
         const url: string = appendQueryParamsToUrl(`${options.baseUrl}${path}`, data.query);
 
@@ -37,10 +38,20 @@ export default function fetcher(options: {appId: string, baseUrl: string}){
             body: JSON.stringify(data.body)
         }
 
-        const Response = await fetch(url, requestInitParams);
-        const ResponseJson = await Response.json();
+        try {
 
-        return {...Response, data: ResponseJson}
+            const Response = await fetch(url, requestInitParams);
+            const ResponseJson = await Response.json();
+
+            
+            if(Response.ok){
+                return {...Response, data: ResponseJson}
+            }
+            
+            return { action: "request", problem: ResponseJson.error, wasOnline: true, statusCode: Response.status} as WooviSdkClientError
+        } catch(error: unknown) {
+            return { action: "unknown", problem: "Something unexpected happened on fetch api.", wasOnline: true, statusCode: 500} as WooviSdkClientError
+        }
     }
 
     return {
