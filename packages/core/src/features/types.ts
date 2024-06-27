@@ -68,7 +68,17 @@ type WooviPagination = {
     }
 }
 
-export { 
+type WooviPayment = {
+    value: number,
+    destinationAlias: string,
+    destinationAliasType: 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'RANDOM',
+    correlationID: string,
+    comment: string,
+    sourceAccountId: string
+}
+
+export {
+    WooviPayment,
     WooviPagination,
     WooviAccount, 
     WooviTransaction, 
